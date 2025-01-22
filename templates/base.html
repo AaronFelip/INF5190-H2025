@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>{{ title }}</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+<!-- Header -->
+<header>
+    <a class="logo" href="{{ url_for('index') }}">INF5190</a>
+    <!-- Include shared navigation -->
+    {% include 'navbar.html' %}
+</header>
+
+<!-- Main Content -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+{% include 'footer.html' %}
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

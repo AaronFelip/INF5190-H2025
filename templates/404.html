@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container special-container center-content">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/404.gif') }}" alt="404 Not Found" class="gif-404">
+            <h1 class="page-title special-title">Erreur 404</h1>
+        </div>
+        <div class="content special-content">
+            <h2>Oups ! La page que vous cherchez n'existe pas.</h2>
+            <div class="button-group">
+                <button class="button-primary" onclick="location.href='/'">Retour à l'accueil</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

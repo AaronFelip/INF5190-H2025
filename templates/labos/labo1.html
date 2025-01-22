@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">{{ title }}</h1>
+        </div>
+
+        <form action="/labo1" method="POST">
+            {% if erreur %}
+                <p class="error">{{ erreur }}</p>
+            {% endif %}
+            <label for="user-name">Nom d'utilisateur</label>
+            <input type="text" id="user-name" name="username" value="{{ username }}" placeholder="Entrez votre nom">
+
+            <fieldset>
+                <legend>Choisissez une option :</legend>
+                <div class="radio-group">
+                    <label for="option-1">
+                        <input type="radio" id="option-1" name="option" value="option1"> Option 1
+                    </label>
+                    <label for="option-2">
+                        <input type="radio" id="option-2" name="option" value="option2"> Option 2
+                    </label>
+                </div>
+            </fieldset>
+
+            <label for="user-choice">Votre choix</label>
+            <select id="user-choice" name="select">
+                <option hidden value="">Faites votre choix</option>
+                <option value="choix1">Choix 1</option>
+                <option value="choix2">Choix 2</option>
+                <option value="choix3">Choix 3</option>
+            </select>
+
+            <div class="button-group">
+                <button type="submit">Envoyer</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

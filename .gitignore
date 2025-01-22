@@ -1,0 +1,91 @@
+# Personnal files and folders for the demonstration
+solution-labo/
+
+# System files and temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# macOS generated files
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS resource forks
+._*
+
+# Temporary and backup files
+*.swp
+*.swo
+*.tmp
+*.bak
+*.old
+*.orig
+*.log
+*.lock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pytest_cache/
+.tox/
+*.coverage
+.cache/
+*.pkl
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+.history/
+
+# JetBrains IDEs (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.hprof
+logs/
+
+# Linux/Mac/Unix swap files
+.*.sw?
+*.un~
+.*.swn
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.tgz
+*.gz
+
+# Specific to some CI/CD tools
+*.env
+.env.*
+*.secrets
+*.key
+.idea_modules/

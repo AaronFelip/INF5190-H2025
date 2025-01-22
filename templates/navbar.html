@@ -1,0 +1,24 @@
+<nav>
+    <input type="checkbox" id="nav__checkbox" role="button" aria-pressed="true">
+    <label for="nav__checkbox" id="nav__toggler">
+        <span id="nav__toggler-icon"></span>
+    </label>
+    <ul class="nav__menu" id="nav__menu">
+        <li>
+            <a href="#" class="nav__dropdown-toggle">Laboratoires</a>
+            <ul class="nav__dropdown" id="dropdown">
+                <li><a href="{{ url_for('labo1') }}">Laboratoire 1</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" class="nav__dropdown-toggle">Énoncés</a>
+            <ul class="nav__dropdown" id="dropdown-enonces">
+                {% for enonce in enonces %}
+                    {% if enonce.name %}
+                        <li><a href="{{ url_for('show_enonce', filename=enonce.name) }}">{{ enonce.title }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</nav>
