@@ -45,7 +45,7 @@ def labo1():
         f"Option : {form_data['option']}\n"
         f"Choix : {form_data['select']}\n"
     )
-    with open('logs/log-labo1.txt', 'w') as log:
+    with open('logs-db/log-labo1.txt', 'w') as log:
         log.write(log_data)
 
     # Rediriger l'utilisateur vers la page de confirmation

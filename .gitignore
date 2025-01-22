@@ -68,7 +68,7 @@ out/
 *.war
 *.ear
 *.hprof
-logs/
+logs-db/
 
 # Linux/Mac/Unix swap files
 .*.sw?
