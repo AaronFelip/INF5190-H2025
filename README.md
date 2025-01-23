@@ -7,9 +7,9 @@ Votre présence aux laboratoires est le meilleur moyen d'avoir les réponses aux
 
 ## Laboratoires:
 - Semaine 1: Pas de labo cette semaine
-- Semaine 2: Labo 1 - Introduction à Flask
-- Semaine 3: Labo 2 - Flask suite
-- Semaine 3: Labo 2.5 - Python et Sqlite3
+- Semaine 2: Labo 1 - [Introduction à Flask](/SOLUTION-LABO1)
+- Semaine 3: Labo 2 - [Flask suite](/SOLUTION-LABO2)
+- Semaine 3: Labo 2.5 - [Python et Sqlite3](/SOLUTION-LABO2-SQLITE3)
 - Semaine 4: à venir
 - Semaine 5: à venir
 - Semaine 6: à venir
