@@ -165,20 +165,16 @@ def mettre_avatar_a_jour():
     user_id = session['id']
 
     try:
-        # Vérification de la présence du fichier
         if 'avatar' not in request.files:
             return "Aucun fichier joint...", 400
 
         file = request.files['avatar']
 
-        # Vérification du fichier sélectionné
         if file.filename == '':
             return "Aucun fichier sélectionné...", 400
 
-        # Validation du fichier
         if file and valider_type_fichier_pour_images(file.filename):
             if file.content_length <= MAX_FILE_SIZE:
-                # Lecture et enregistrement de l'avatar
                 avatar_data = file.read()
                 get_db().mettre_avatar_a_jour(user_id, avatar_data)
                 return redirect(url_for('profile'))
