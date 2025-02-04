@@ -86,33 +86,27 @@ def signin():
             'mdp': request.form.get('mdp', "").strip(),
         }
 
-        if not all(form_data.values()):
-            message_erreur = "Tous les champs doivent être remplis"
-            return render_template("sign-in.html",
-                                   title=title,
-                                   message_erreur=message_erreur,
-                                   **form_data), 400
+        erreurs = {}
 
-        if courriel_existe(form_data['courriel']):
-            courriel_erreur = "Ce courriel existe deja"
-            return render_template("sign-in.html",
-                                   title=title,
-                                   courriel_erreur=courriel_erreur,
-                                   **form_data), 400
+    if not all(form_data.values()):
+        erreurs["message_erreur"] = "Tous les champs doivent être remplis"
 
-        if valider_mdp(form_data['mdp']) is False:
-            mdp_erreur = "Votre mot de passe ne respecte pas les critères"
-            return render_template("sign-in.html",
-                                   title=title,
-                                   mdp_erreur=mdp_erreur,
-                                   **form_data), 400
+    if courriel_existe(form_data['courriel']):
+        erreurs["courriel_erreur"] = "Ce courriel existe déjà"
 
-        get_db().creer_utlisateur(form_data['nom'],
+    if not valider_mdp(form_data['mdp']):
+        erreurs["mdp_erreur"] = "Votre mot de passe ne respecte pas les critères"
+
+    if erreurs:
+        return render_template("sign-in.html", title=title, **erreurs, **form_data), 400
+
+
+    get_db().creer_utlisateur(form_data['nom'],
                                   form_data['prenom'],
                                   form_data['courriel'],
                                   form_data['mdp'])
 
-        return redirect(url_for("confirmation")), 302
+    return redirect(url_for("confirmation")), 302
 
 
 @app.route('/confirmation', methods=['GET'])
