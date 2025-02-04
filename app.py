@@ -86,7 +86,7 @@ def signin():
             'prenom': request.form.get('prenom', "").strip(),
             'courriel': request.form.get('courriel', "").strip(),
             'validation-courriel': request.form.get('courriel', "").strip(),
-            'mdp': request.form.get('mdp', "").strip(),
+            'mdp': request.form.get('mdp', "")
         }
 
         erreurs = {}
