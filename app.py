@@ -23,6 +23,24 @@ def valider_type_fichier_pour_images(nom_du_fichier):
     return est_permise
 
 
+def valider_courriel_existe(courriel):
+    return get_db().courriel_existe(courriel)
+
+
+def valider_courriel(courriel, validation_courriel):
+    return courriel == validation_courriel
+
+
+# Non testé et à revoir
+def valider_mdp(mdp):
+    try:
+        if mdp_format_test(mdp) is not None:
+            return True
+    except:
+        pass
+    return False
+
+
 def connection_requise(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -45,21 +63,6 @@ def close_connection(exception):
     if db is not None:
         db.close_connection()
 
-
-def courriel_existe(courriel):
-    return get_db().courriel_existe(courriel)
-
-def valider_courriel(courriel, validation_courriel):
-    return courriel == validation_courriel
-
-# Non testé et à revoir
-def valider_mdp(mdp):
-    try:
-        if mdp_format_test(mdp) is not None:
-            return True
-    except:
-        pass
-    return False
 
 @app.route('/')
 def index():
@@ -91,7 +94,7 @@ def signin():
         if not all(form_data.values()):
             erreurs["message_erreur"] = "Tous les champs doivent être remplis"
 
-        if courriel_existe(form_data['courriel']):
+        if valider_courriel_existe(form_data['courriel']):
             erreurs["courriel_erreur"] = "Ce courriel existe déjà"
 
         if not valider_mdp(form_data['mdp']):
@@ -150,7 +153,6 @@ def telecharger_avatar(avatar_id):
 
     except Exception as e:
         return Response(status=500)
-
 
 
 @app.route('/my/avatar/update_avatar', methods=['POST'])
