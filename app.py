@@ -88,25 +88,25 @@ def signin():
 
         erreurs = {}
 
-    if not all(form_data.values()):
-        erreurs["message_erreur"] = "Tous les champs doivent être remplis"
+        if not all(form_data.values()):
+            erreurs["message_erreur"] = "Tous les champs doivent être remplis"
 
-    if courriel_existe(form_data['courriel']):
-        erreurs["courriel_erreur"] = "Ce courriel existe déjà"
+        if courriel_existe(form_data['courriel']):
+            erreurs["courriel_erreur"] = "Ce courriel existe déjà"
 
-    if not valider_mdp(form_data['mdp']):
-        erreurs["mdp_erreur"] = "Votre mot de passe ne respecte pas les critères"
+        if not valider_mdp(form_data['mdp']):
+            erreurs["mdp_erreur"] = "Votre mot de passe ne respecte pas les critères"
 
-    if erreurs:
-        return render_template("sign-in.html", title=title, **erreurs, **form_data), 400
+        if erreurs:
+            return render_template("sign-in.html", title=title, **erreurs, **form_data), 400
 
 
-    get_db().creer_utlisateur(form_data['nom'],
-                                  form_data['prenom'],
-                                  form_data['courriel'],
-                                  form_data['mdp'])
+        get_db().creer_utlisateur(form_data['nom'],
+                                      form_data['prenom'],
+                                      form_data['courriel'],
+                                      form_data['mdp'])
 
-    return redirect(url_for("confirmation")), 302
+        return redirect(url_for("confirmation")), 302
 
 
 @app.route('/confirmation', methods=['GET'])
