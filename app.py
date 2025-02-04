@@ -167,13 +167,13 @@ def mettre_avatar_a_jour():
     try:
         # Vérification de la présence du fichier
         if 'avatar' not in request.files:
-            return "No file part", 400
+            return "Aucun fichier joint...", 400
 
         file = request.files['avatar']
 
         # Vérification du fichier sélectionné
         if file.filename == '':
-            return "No selected file", 400
+            return "Aucun fichier sélectionné...", 400
 
         # Validation du fichier
         if file and valider_type_fichier_pour_images(file.filename):
@@ -183,12 +183,12 @@ def mettre_avatar_a_jour():
                 get_db().mettre_avatar_a_jour(user_id, avatar_data)
                 return redirect(url_for('profile'))
             else:
-                return "File size exceeds the maximum limit", 400
+                return "Le fichier excède la grosseur permise...", 400
         else:
-            return "File not allowed", 400
+            return "Type de fichier non permis...", 400
 
     except Exception as e:
-        return "An unexpected error occurred. Please try again later.", 500
+        return "Une errreur innatendu c'est produite, veuillez réessayer plus tard...", 500
 
 
 if __name__ == '__main__':
