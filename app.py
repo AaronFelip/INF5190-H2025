@@ -1,34 +1,29 @@
-import hashlib
-import uuid
-from datetime import date
 from functools import wraps
-
 from werkzeug.utils import secure_filename
-
 from database import Database
 from flask import Flask, render_template, redirect, url_for, request, g, session, Response, make_response, \
     send_from_directory
-import os, re
+import re
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
-ALLOWED_EXTENSIONS = frozenset({'png', 'jpg', 'jpeg', 'gif'})
+EXTENSIONS_PERMISES = frozenset({'png', 'jpg', 'jpeg', 'gif'})
 regex = r"[A-Za-z0-9#$%&'*+/=?@]{8,}" #possiblement incomplet
 mdp_format_test = re.compile(regex).match
 
 
-def allowed_file(filename):
-    if not isinstance(filename, str) or '.' not in filename:
+def valider_type_fichier_pour_images(nom_du_fichier):
+    if not isinstance(nom_du_fichier, str) or '.' not in nom_du_fichier:
         return False
 
-    filename = secure_filename(filename)  # Sécurise le nom du fichier
-    extension = filename.rsplit('.', 1)[-1].lower()
-    is_allowed = extension in ALLOWED_EXTENSIONS
-    return is_allowed
+    nom_du_fichier = secure_filename(nom_du_fichier)  # Sécurise le nom du fichier
+    extension = nom_du_fichier.rsplit('.', 1)[-1].lower()
+    est_permise = extension in EXTENSIONS_PERMISES
+    return est_permise
 
 
-def login_required(f):
+def connection_requise(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'id' not in session:
@@ -112,16 +107,10 @@ def signin():
                                    mdp_erreur=mdp_erreur,
                                    **form_data), 400
 
-
-        salt = uuid.uuid4().hex
-        hashed_password = hashlib.sha512(str(form_data['mdp'] + salt).encode("utf-8")).hexdigest()
-        date_inscription = date.today()
         get_db().creer_utlisateur(form_data['nom'],
                                   form_data['prenom'],
                                   form_data['courriel'],
-                                  date_inscription,
-                                  salt,
-                                  hashed_password)
+                                  form_data['mdp'])
 
         return redirect(url_for("confirmation")), 302
 
@@ -139,7 +128,7 @@ def page_not_found(e):
 
 
 @app.route('/my/avatar/<avatar_id>')
-def download_picture(avatar_id):
+def telecharger_avatar(avatar_id):
     """
     Permet à un utilisateur de télécharger une image d'avatar.
     Les avatars par défaut sont récupérés depuis un dossier statique,
@@ -148,12 +137,12 @@ def download_picture(avatar_id):
 
     try:
         # Gestion des avatars par défaut
-        default_avatars = [
+        avatars_par_defaut = [
             'anime.png', 'batman.png', 'bear-russia.png',
             'coffee.png', 'jason.png', 'zombie.png'
         ]
 
-        if avatar_id in default_avatars:
+        if avatar_id in avatars_par_defaut:
             return send_from_directory('static/images/def-avatar', avatar_id)
 
         # Gestion des avatars personnalisés
@@ -171,8 +160,8 @@ def download_picture(avatar_id):
 
 
 @app.route('/my/avatar/update_avatar', methods=['POST'])
-@login_required
-def update_avatar():
+@connection_requise
+def mettre_avatar_a_jour():
     """
     Permet à un utilisateur connecté de mettre à jour son avatar.
     Valide le fichier envoyé, limite sa taille, et enregistre les données dans la base.
@@ -191,7 +180,7 @@ def update_avatar():
             return "No selected file", 400
 
         # Validation du fichier
-        if file and allowed_file(file.filename):
+        if file and valider_type_fichier_pour_images(file.filename):
             if file.content_length <= MAX_FILE_SIZE:
                 # Lecture et enregistrement de l'avatar
                 avatar_data = file.read()

@@ -1,14 +1,14 @@
+import hashlib
 import os
 import sqlite3
 import random
 import uuid
+from datetime import date
 
 
-def get_random_default_avatar():
-    avatar_dir = os.path.join('static', 'images', 'def-avatar')
-    avatar_files = ['anime.png', 'batman.png', 'bear-russia.png', 'coffee.png', 'jason.png', 'zombie.png']
-    return random.choice(avatar_files)
-
+def get_avatar_aleatoire():
+    avatar = ['anime.png', 'batman.png', 'bear-russia.png', 'coffee.png', 'jason.png', 'zombie.png']
+    return random.choice(avatar)
 
 
 class Database():
@@ -27,15 +27,16 @@ class Database():
             self.connection.close()
 
 
-    def creer_utlisateur(self, nom, prenom, courriel, date_inscription, salt, hashed_password):
+    def creer_utlisateur(self, nom, prenom, courriel, mdp):
+        salt = uuid.uuid4().hex
+        hashed_password = hashlib.sha512(str(mdp + salt).encode("utf-8")).hexdigest()
+        date_inscription = date.today()
         connection = self.get_connection()
-
-        # Générer un avatar par défaut
-        default_avatar = get_random_default_avatar()
+        avatar_par_default = get_avatar_aleatoire()
         connection.execute(
             "INSERT INTO utilisateur(nom, prenom, courriel, date_inscription, avatar_id, mot_de_passe_salt, mot_de_passe_hash) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (nom, prenom, courriel, date_inscription, default_avatar, salt, hashed_password)
+            (nom, prenom, courriel, date_inscription, avatar_par_default, salt, hashed_password)
         )
         connection.commit()
 
