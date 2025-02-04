@@ -1,129 +1,129 @@
-from flask import Flask, render_template, redirect, url_for, request
-import os
-import markdown
+import hashlib
+import uuid
+from datetime import date
+from functools import wraps
+
+from werkzeug.utils import secure_filename
+
+from database import Database
+from flask import Flask, render_template, redirect, url_for, request, g, session, Response, make_response, \
+    send_from_directory
+import os, re
+
 app = Flask(__name__, static_url_path='', static_folder='static')
 
-ENONCES_DIR = 'enonces'  # Dossier contenant les énoncés, vous l'effacez,
-# vous mourrez 💀
+MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', 10 * 1024 * 1024))
+ALLOWED_EXTENSIONS = frozenset({'png', 'jpg', 'jpeg', 'gif'})
+regex = r"[A-Za-z0-9#$%&'*+/=?@]{8,}" #possiblement incomplet
+mdp_format_test = re.compile(regex).match
 
 
-@app.route('/labo1', methods=['GET', 'POST'])
-def labo1():
-    # Définir le titre de la page
-    title = "Laboratoire 1"
+def allowed_file(filename):
+    if not isinstance(filename, str) or '.' not in filename:
+        return False
 
-    # Gestion des requêtes GET
-    if request.method == 'GET':
-        # Renvoyer le formulaire vide avec les paramètres par défaut
-        return render_template('labos/labo1.html',
-                               username="",
-                               erreur="",
-                               title=title), 200
-
-    # Gestion des requêtes POST
-    # Récupérer les données du formulaire en s'assurant qu'elles ne
-    # sont pas nulles
-    form_data = {
-        'username': request.form['username'].strip(),
-        'option': request.form.get('option', "").strip(),
-        'select': request.form.get('select', "").strip()
-    }
-
-    # Vérifier si tous les champs du formulaire ont été remplis
-    if not all(form_data.values()):
-        erreur = "Tous les champs du formulaire doivent être remplis."
-        # Renvoyer le formulaire avec un message d'erreur et les valeurs
-        # déjà saisies
-        return render_template('labos/labo1.html',
-                               erreur=erreur,
-                               username=form_data['username'],
-                               title=title), 400
-
-    # Écriture des données dans un fichier de log
-    log_data = (
-        f"Nom d'utilisateur : {form_data['username']}\n"
-        f"Option : {form_data['option']}\n"
-        f"Choix : {form_data['select']}\n"
-    )
-    with open('logs-db/log-labo1.txt', 'w') as log:
-        log.write(log_data)
-
-    # Rediriger l'utilisateur vers la page de confirmation
-    return redirect(url_for('confirmation'), 302)
+    filename = secure_filename(filename)  # Sécurise le nom du fichier
+    extension = filename.rsplit('.', 1)[-1].lower()
+    is_allowed = extension in ALLOWED_EXTENSIONS
+    return is_allowed
 
 
-@app.route('/labo2', methods=['GET', 'POST'])
-def labo2():
-    # Définir le titre de la page
-    title = "Laboratoire 2"
-
-    # Gestion des requêtes GET
-    if request.method == 'GET':
-        # Retourner le formulaire initial avec le titre
-        return render_template('labos/labo2.html', title=title), 200
-
-    # Gestion des requêtes POST
-    # Récupérer les données envoyées dans le formulaire
-    form_data = {
-        'nom': request.form.get('nom', "").strip(),       # Nom de l'utilisateur
-        'prenom': request.form.get('prenom', "").strip(), # Prénom de l'utilisateur
-        'age': request.form.get('age', "").strip()        # Âge de l'utilisateur
-    }
-
-    # Vérifier si tous les champs ont été remplis
-    if not all(form_data.values()):
-        erreur = "Tous les champs doivent être remplis"
-        # Retourner le formulaire avec un message d'erreur et les données déjà saisies
-        return render_template('labos/labo2.html', erreur=erreur, **form_data, title=title)
-
-    # Écriture des données dans le fichier de log
-    log_data = f"{form_data['nom']}, {form_data['prenom']}, {form_data['age']}\n"
-    with open("logs-db/log-labo2.txt", 'a', encoding="utf8") as log:
-        log.write(log_data)
-
-    # Redirection vers la page de confirmation
-    return redirect(url_for('confirmation'), 302)
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'id' not in session:
+            return redirect(url_for('login')), 302
+        return f(*args, **kwargs)
+    return decorated_function
 
 
-@app.route("/labo2/liste")
-def liste_labo2():
-    # Liste pour stocker les données extraites du fichier de log
-    liste_membres = []
-    chemin_fichier_log = "logs-db/log-labo2.txt"
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        g._database = Database()
+    return g._database
 
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close_connection()
+
+
+def courriel_existe(courriel):
+    return get_db().courriel_existe(courriel)
+
+def valider_courriel(courriel, validation_courriel):
+    return courriel == validation_courriel
+
+# Non testé et à revoir
+def valider_mdp(mdp):
     try:
-        # Ouvrir le fichier de log en mode lecture
-        with open(chemin_fichier_log, 'r', encoding="utf8") as fichier_log:
-            lignes_log = fichier_log.readlines()
+        if mdp_format_test(mdp) is not None:
+            return True
+    except:
+        pass
+    return False
 
-        # Parcourir chaque ligne du fichier et extraire les informations
-        for ligne in lignes_log:
-            informations_membre = ligne.strip().split(", ")  # Découper la ligne en utilisant ", " comme séparateur
-            liste_membres.append(informations_membre)  # Ajouter les données extraites à la liste
+@app.route('/')
+def index():
+    """Affiche les énoncés sous forme de fiches."""
+    title = "INF5190 PROJET SESSION"
+    return render_template('index.html',
+                           title=title), 200
 
-    except FileNotFoundError:
-        # Gérer le cas où le fichier de log n'existe pas
-        return render_template(
-            "labos/labo2-liste.html",
-            resultats=None,
-            message="Il n'y a pas de nouveau membre pour le moment."
-        ), 200
 
-    # Vérifier si le fichier existe mais est vide
-    if not liste_membres:
-        return render_template(
-            "labos/labo2-liste.html",
-            resultats=None,
-            message="Il n'y a pas de nouveau membre pour le moment."
-        ), 200
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    title = "Mon site - veuillez vous sinscrire"
+    if request.method == "GET":
+        return render_template("sign-in.html", title=title), 200
+    else:
 
-    # Si des membres sont trouvés, les transmettre au template
-    return render_template(
-        "labos/labo2-liste.html",
-        resultats=liste_membres,
-        message=None,
-        len=len(liste_membres)
-    ), 200
+        # Gestion des requêtes POST
+        # Récupérer les données envoyées dans le formulaire
+        form_data = {
+            'nom': request.form.get('nom', "").strip(),
+            'prenom': request.form.get('prenom', "").strip(),
+            'courriel': request.form.get('courriel', "").strip(),
+            'validation-courriel': request.form.get('courriel', "").strip(),
+            'mdp': request.form.get('mdp', "").strip(),
+        }
+
+        if not all(form_data.values()):
+            message_erreur = "Tous les champs doivent être remplis"
+            return render_template("sign-in.html",
+                                   title=title,
+                                   message_erreur=message_erreur,
+                                   **form_data), 400
+
+        if courriel_existe(form_data['courriel']):
+            courriel_erreur = "Ce courriel existe deja"
+            return render_template("sign-in.html",
+                                   title=title,
+                                   courriel_erreur=courriel_erreur,
+                                   **form_data), 400
+
+        if valider_mdp(form_data['mdp']) is False:
+            mdp_erreur = "Votre mot de passe ne respecte pas les critères"
+            return render_template("sign-in.html",
+                                   title=title,
+                                   mdp_erreur=mdp_erreur,
+                                   **form_data), 400
+
+
+        salt = uuid.uuid4().hex
+        hashed_password = hashlib.sha512(str(form_data['mdp'] + salt).encode("utf-8")).hexdigest()
+        date_inscription = date.today()
+        get_db().creer_utlisateur(form_data['nom'],
+                                  form_data['prenom'],
+                                  form_data['courriel'],
+                                  date_inscription,
+                                  salt,
+                                  hashed_password)
+
+        return redirect(url_for("confirmation")), 302
 
 
 @app.route('/confirmation', methods=['GET'])
@@ -137,77 +137,73 @@ def confirmation():
 def page_not_found(e):
     return render_template('404.html'), 404
 
-##########################################################################
-#                                                                        #
-#           ROUTES POUR LE BON FONCTIONNEMENT DU SITE WEB                #
-#                                                                        #
-#  Les routes et fonctions définies ci-dessous permettent d'assurer les  #
-#  fonctionnalités principales de l'application                          #
-#                                                                        #
-#                                                                        #
-##########################################################################
 
+@app.route('/my/avatar/<avatar_id>')
+def download_picture(avatar_id):
+    """
+    Permet à un utilisateur de télécharger une image d'avatar.
+    Les avatars par défaut sont récupérés depuis un dossier statique,
+    tandis que les avatars personnalisés sont chargés depuis la base de données.
+    """
 
-@app.route('/')
-def index():
-    """Affiche les énoncés sous forme de fiches."""
-    title = "INF5190 PROJET SESSION"
-    enonces = []
     try:
-        for filename in os.listdir(ENONCES_DIR):
-            if filename.endswith('.md'):
-                filepath = os.path.join(ENONCES_DIR, filename)
-                with open(filepath, 'r', encoding='utf-8') as file:
-                    content = file.read()
-                    # Limiter la longueur du contenu pour le thumbnail
-                    preview = markdown.markdown(content[:140]) + "..."
-                    enonces.append({
-                        'name': filename,
-                        'title': filename.replace('.md', '').capitalize(),
-                        'preview': preview
-                    })
-    except FileNotFoundError:
-        pass
-
-    while len(enonces) < 10:
-        enonces.append({
-            'name': None,
-            'title': "Énoncé à venir",
-            'preview': "Le contenu de cet énoncé sera disponible "
-                       "prochainement."
-        })
-
-    return render_template('index.html',
-                           title=title,
-                           enonces=enonces), 200
-
-
-@app.route('/enonce/<filename>')
-def show_enonce(filename):
-    """Afficher le contenu Markdown d'un énoncé."""
-    filepath = os.path.join(ENONCES_DIR, filename)
-    if not os.path.exists(filepath):
-        return "Énoncé introuvable.", 404
-    with open(filepath, 'r', encoding='utf-8') as file:
-        content = file.read()
-        html_content = markdown.markdown(content)
-    return render_template('enonce.html',
-                           content=html_content,
-                           title=filename.replace('.md', '').capitalize()), 200
-
-
-@app.context_processor
-def inject_enonces():
-    """Injecte la liste des énoncés dans les templates."""
-    try:
-        files = [f for f in os.listdir(ENONCES_DIR) if f.endswith('.md')]
-        enonces = [
-            {'name': f, 'title': f.replace('.md', '').
-                capitalize()} for f in files
+        # Gestion des avatars par défaut
+        default_avatars = [
+            'anime.png', 'batman.png', 'bear-russia.png',
+            'coffee.png', 'jason.png', 'zombie.png'
         ]
-        return {'enonces': enonces}
-    except FileNotFoundError:
-        return {'enonces': []}
+
+        if avatar_id in default_avatars:
+            return send_from_directory('static/images/def-avatar', avatar_id)
+
+        # Gestion des avatars personnalisés
+        binary_data = get_db().charger_avatar(avatar_id)
+        if binary_data is None:
+            return Response(status=404)
+
+        response = make_response(binary_data)
+        response.headers.set('Content-Type', 'image/png')
+        return response
+
+    except Exception as e:
+        return Response(status=500)
+
+
+
+@app.route('/my/avatar/update_avatar', methods=['POST'])
+@login_required
+def update_avatar():
+    """
+    Permet à un utilisateur connecté de mettre à jour son avatar.
+    Valide le fichier envoyé, limite sa taille, et enregistre les données dans la base.
+    """
+    user_id = session['id']
+
+    try:
+        # Vérification de la présence du fichier
+        if 'avatar' not in request.files:
+            return "No file part", 400
+
+        file = request.files['avatar']
+
+        # Vérification du fichier sélectionné
+        if file.filename == '':
+            return "No selected file", 400
+
+        # Validation du fichier
+        if file and allowed_file(file.filename):
+            if file.content_length <= MAX_FILE_SIZE:
+                # Lecture et enregistrement de l'avatar
+                avatar_data = file.read()
+                get_db().mettre_avatar_a_jour(user_id, avatar_data)
+                return redirect(url_for('profile'))
+            else:
+                return "File size exceeds the maximum limit", 400
+        else:
+            return "File not allowed", 400
+
+    except Exception as e:
+        return "An unexpected error occurred. Please try again later.", 500
 
 
 if __name__ == '__main__':

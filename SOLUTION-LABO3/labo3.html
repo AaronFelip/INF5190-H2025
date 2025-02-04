@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">S'enregistrer</h1>
+        </div>
+        {% if message %}
+            <p class="info-message">{{ message }}</p>
+        {% else %}
+            <form action="/signin" method="POST">
+                {% if erreur %}
+                    <p class="error">{{ erreur }}</p>
+                {% endif %}
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" value="{{ nom }}" placeholder="Entrez votre nom">
+
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" value="{{ prenom }}" placeholder="Entrez votre prénom">
+
+                <label for="courriel">Courriel</label>
+                <input type="text" id="courriel" name="courriel" value="{{courriel}}">
+
+                {% if courriel_erreur %}
+                    <p class="error">{{courriel_erreur}}</p>
+                {% endif %}
+                <label for="validation-courriel">Validation du courriel</label>
+                <input type="text" id="validation-courriel" name="validation-courriel">
+
+                {% if mdp_erreur %}
+                    <p class="error">{{mdp_erreur}}</p>
+                {% endif %}
+                <label for="mdp">Mot de passe</label>
+                <input type="password" id="mdp" name="mdp">
+
+                <div class="button-group">
+                    <button type="submit">Envoyer</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

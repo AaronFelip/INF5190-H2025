@@ -4,23 +4,13 @@
         <span id="nav__toggler-icon"></span>
     </label>
     <ul class="nav__menu" id="nav__menu">
-        <li><a href="{{ url_for('liste_labo2') }}">Labo 2 liste</a></li>
-        <li>
+        <li><a href="{{ url_for('signin') }}">S'enregistrer</a></li>
+        {#<li>
             <a href="#" class="nav__dropdown-toggle">Laboratoires</a>
             <ul class="nav__dropdown" id="dropdown">
                 <li><a href="{{ url_for('labo1') }}">Laboratoire 1</a></li>
                 <li><a href="{{ url_for('labo2') }}">Laboratoire 2</a></li>
             </ul>
-        </li>
-        <li>
-            <a href="#" class="nav__dropdown-toggle">Énoncés</a>
-            <ul class="nav__dropdown" id="dropdown-enonces">
-                {% for enonce in enonces %}
-                    {% if enonce.name %}
-                        <li><a href="{{ url_for('show_enonce', filename=enonce.name) }}">{{ enonce.title }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </li>
+        </li>#}
     </ul>
 </nav>
