@@ -12,7 +12,7 @@ import os, re
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 
-MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', 10 * 1024 * 1024))
+MAX_FILE_SIZE = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = frozenset({'png', 'jpg', 'jpeg', 'gif'})
 regex = r"[A-Za-z0-9#$%&'*+/=?@]{8,}" #possiblement incomplet
 mdp_format_test = re.compile(regex).match
