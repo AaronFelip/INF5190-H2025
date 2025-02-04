@@ -8,6 +8,9 @@
             {% if message_erreur %}
                 <p class="error">{{ message_erreur }}</p>
             {% endif %}
+            {% if db_erreur %}
+                <p class="error">{{ db_erreur }}</p>
+            {% endif %}
             <label for="nom">Nom</label>
             <input type="text" id="nom" name="nom" value="{{ nom }}" placeholder="Entrez votre nom">
 

@@ -27,7 +27,7 @@ class Database():
             self.connection.close()
 
 
-    def creer_utlisateur(self, nom, prenom, courriel, mdp):
+    def creer_utilisateur(self, nom, prenom, courriel, mdp):
         salt = uuid.uuid4().hex
         hashed_password = hashlib.sha512(str(mdp + salt).encode("utf-8")).hexdigest()
         date_inscription = date.today()

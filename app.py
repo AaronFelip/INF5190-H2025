@@ -74,42 +74,47 @@ def index():
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
-    title = "Mon site - veuillez vous sinscrire"
+    title = "Mon site - veuillez vous inscrire"
+
     if request.method == "GET":
         return render_template("sign-in.html", title=title), 200
-    else:
 
-        # Gestion des requêtes POST
-        # Récupérer les données envoyées dans le formulaire
-        form_data = {
-            'nom': request.form.get('nom', "").strip(),
-            'prenom': request.form.get('prenom', "").strip(),
-            'courriel': request.form.get('courriel', "").strip(),
-            'validation-courriel': request.form.get('courriel', "").strip(),
-            'mdp': request.form.get('mdp', "")
-        }
+    # Gestion des requêtes POST
+    form_data = {
+        'nom': request.form.get('nom', "").strip(),
+        'prenom': request.form.get('prenom', "").strip(),
+        'courriel': request.form.get('courriel', "").strip(),
+        'validation-courriel': request.form.get('courriel', "").strip(),
+        'mdp': request.form.get('mdp', "")
+    }
 
-        erreurs = {}
+    erreurs = {}
 
-        if not all(form_data.values()):
-            erreurs["message_erreur"] = "Tous les champs doivent être remplis"
+    if not all(form_data.values()):
+        erreurs["message_erreur"] = "Tous les champs doivent être remplis"
 
-        if valider_courriel_existe(form_data['courriel']):
-            erreurs["courriel_erreur"] = "Ce courriel existe déjà"
+    if valider_courriel_existe(form_data['courriel']):
+        erreurs["courriel_erreur"] = "Ce courriel existe déjà"
 
-        if not valider_mdp(form_data['mdp']):
-            erreurs["mdp_erreur"] = "Votre mot de passe ne respecte pas les critères"
+    if not valider_mdp(form_data['mdp']):
+        erreurs["mdp_erreur"] = "Votre mot de passe ne respecte pas les critères"
 
-        if erreurs:
-            return render_template("sign-in.html", title=title, **erreurs, **form_data), 400
+    if erreurs:
+        return render_template("sign-in.html", title=title, **erreurs, **form_data), 400
 
+    # Tentative de création de l'utilisateur
+    try:
+        get_db().creer_utilisateur(
+            form_data['nom'],
+            form_data['prenom'],
+            form_data['courriel'],
+            form_data['mdp']
+        )
+    except Exception as e:
+        erreurs["db_erreur"] = "Une erreur est survenue lors de l'inscription. Veuillez réessayer."
+        return render_template("sign-in.html", title=title, **erreurs, **form_data), 500
 
-        get_db().creer_utlisateur(form_data['nom'],
-                                      form_data['prenom'],
-                                      form_data['courriel'],
-                                      form_data['mdp'])
-
-        return redirect(url_for("confirmation")), 302
+    return redirect(url_for("confirmation")), 302
 
 
 @app.route('/confirmation', methods=['GET'])
