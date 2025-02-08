@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Se connecter</h1>
+        </div>
+        <form action="/login" method="POST">
+            {% if message_erreur %}
+                <div class="error">{{ message_erreur }}</div>
+            {% endif %}
+            <label for="courriel">Courriel</label>
+            <input type="text" id="courriel" name="courriel" value="{{ courriel }}">
+
+            <label for="mdp">Mot de Passe</label>
+            <input type="password" id="mdp" name="mdp">
+
+        <div class="button-group">
+            <button type="submit">Se connecter</button>
+        </div>
+        <p>Tu n'as pas de compte? <a href="{{ url_for('signin') }}">S'enregistrer</a></p>
+
+        </form>
+    </div>
+
+{% endblock %}

@@ -40,6 +40,42 @@ class Database():
         )
         connection.commit()
 
+
+        # Dans la classe Database
+    def verifier_utilisateur(self, courriel, mdp):
+        """Vérifie les credentials de l'utilisateur et retourne ses données si valides."""
+        connection = self.get_connection()
+        cursor = connection.cursor()
+        try:
+            # Récupère le salt et le hash stockés
+            cursor.execute(
+                "SELECT id, nom, prenom, mot_de_passe_salt, mot_de_passe_hash "
+                "FROM utilisateur WHERE courriel = ?",
+                (courriel,)
+            )
+            user = cursor.fetchone()
+
+            if user:
+                user_id, nom, prenom, salt, stored_hash = user
+                # Génère le hash avec le mot de passe fourni et le salt stocké
+                hashed_password = hashlib.sha512(
+                    str(mdp + salt).encode("utf-8")
+                ).hexdigest()
+
+                # Vérifie si les hashs correspondent
+                if hashed_password == stored_hash:
+                    return {
+                        'id': user_id,
+                        'nom': nom,
+                        'prenom': prenom,
+                        'courriel': courriel
+                    }
+        finally:
+            cursor.close()
+        return None
+
+
+
     def courriel_existe(self, courriel):
         connection = self.get_connection()
         cursor = connection.cursor()

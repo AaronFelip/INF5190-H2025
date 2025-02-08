@@ -3,9 +3,16 @@ from werkzeug.utils import secure_filename
 from database import Database
 from flask import Flask, render_template, redirect, url_for, request, g, session, Response, make_response, \
     send_from_directory
-import re
+import re, secrets
 
 app = Flask(__name__, static_url_path='', static_folder='static')
+
+
+# Dans config.py ou .env pas ici
+app.secret_key = 'votre_secret_super_secret_key'
+
+#print(secrets.token_hex(16))
+
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
 EXTENSIONS_PERMISES = frozenset({'png', 'jpg', 'jpeg', 'gif'})
@@ -115,6 +122,55 @@ def signin():
         return render_template("sign-in.html", title=title, **erreurs, **form_data), 500
 
     return redirect(url_for("confirmation")), 302
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Gère la connexion des utilisateurs."""
+    if request.method == 'GET':
+        if 'id' in session:
+            return redirect(url_for('index'))
+        return render_template('login.html', title="Connexion")
+
+    # Traitement du formulaire POST
+    courriel = request.form.get('courriel', '').strip()
+    mdp = request.form.get('mdp', '')
+
+    erreurs = {}
+
+    # Validation basique des champs
+    if not courriel or not mdp:
+        erreurs['message_erreur'] = "Tous les champs sont requis"
+        return render_template('login.html', title="Connexion",
+                               **erreurs, courriel=courriel), 400
+
+    # Vérification des credentials
+    utilisateur = get_db().verifier_utilisateur(courriel, mdp)
+
+    if utilisateur is None:
+        erreurs['message_erreur'] = "Courriel ou mot de passe incorrect"
+        return render_template('login.html', title="Connexion",
+                               **erreurs, courriel=courriel), 401
+
+    # Création de la session
+    session.clear()
+    session['id'] = utilisateur['id']
+    session['nom'] = utilisateur['nom']
+    session['prenom'] = utilisateur['prenom']
+    session['courriel'] = utilisateur['courriel']
+
+    return redirect(url_for('index')),302
+
+
+@app.route('/logout')
+@connection_requise
+def logout():
+    """
+    Déconnecte l'utilisateur et le redirige vers la page d'accueil.
+    """
+    session.clear()
+    return redirect(url_for('index')),302
+
 
 
 @app.route('/confirmation', methods=['GET'])

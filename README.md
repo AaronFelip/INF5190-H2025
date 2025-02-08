@@ -7,11 +7,11 @@ Votre présence aux laboratoires est le meilleur moyen d'avoir les réponses aux
 
 ## Laboratoires:
 - Semaine 1: Pas de labo cette semaine
-- Semaine 2: Labo 1 - [Introduction à Flask](/SOLUTION-LABO1)
-- Semaine 3: Labo 2 - [Flask suite](/SOLUTION-LABO2)
-- Semaine 3: Labo 2.5 - [Python et Sqlite3](/SOLUTION-LABO2-SQLITE3)
-- Semaine 4: Labo 3 - [Flask et Sqlite3](/SOLUTION-LABO3)
-- Semaine 5: Labo 4 - Sessions
+- Semaine 2: Labo 1 - [Introduction à Flask](/SOLUTIONS-LABOS/SOLUTION-LABO1)
+- Semaine 3: Labo 2 - [Flask suite](/SOLUTIONS-LABOS/SOLUTION-LABO2)
+- Semaine 3: Labo 2.5 - [Python et Sqlite3](/SOLUTIONS-LABOS/SOLUTION-LABO2-SQLITE3)
+- Semaine 4: Labo 3 - [Flask et Sqlite3](/SOLUTIONS-LABOS/SOLUTION-LABO3)
+- Semaine 5: Labo 4 - Sessions (aucune solution pour ce labo)
 - Semaine 6: à venir
 - Semaine 7: à venir
 - Semaine 8: à venir
