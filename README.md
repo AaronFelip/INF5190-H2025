@@ -13,7 +13,7 @@ Votre présence aux laboratoires est le meilleur moyen d'avoir les réponses aux
 - Semaine 4: Labo 3 - [Flask et Sqlite3](/SOLUTIONS-LABOS/SOLUTION-LABO3)
 - Semaine 5: Labo 4 - Sessions (aucune solution pour ce labo)
 - Semaine 6: Labo 5 - JSON et XML (aucune solution pour ce labo)
-- Semaine 7: à venir
+- Semaine 7: Labo 6 - [Premier API](/SOLUTIONS-LABOS/SOLUTION-LABO6)
 - Semaine 8: à venir
 - Semaine 9: à venir
 - Semaine 10: à venir
